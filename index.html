@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início de Dia | Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a; /* Slate 900 */
+            --text-primary: #f8fafc; /* Slate 50 */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --card-bg: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity */
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-1: #3b82f6; /* Blue 500 */
+            --accent-2: #8b5cf6; /* Violet 500 */
+            --accent-gradient: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            /* Subtle glowing ambient lights in the background */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: none; /* Hidden until login */
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            padding: 3rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out backwards;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-container h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .login-container p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .btn-google {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #fff;
+            color: #3c4043;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-google:hover {
+            background: #f8f9fa;
+            box-shadow: 0 1px 3px rgba(60,64,67, 0.3);
+        }
+
+        .btn-google svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        header {
+            margin-bottom: 3.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .date {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .date svg {
+            color: var(--text-secondary);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            animation: fadeInUp 0.8s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Micro-interactions */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            animation: fadeInUp 0.8s ease-out backwards;
+            animation-delay: 0.4s;
+        }
+
+        .water-reminder {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(14, 165, 233, 0.15); /* Sky blue tint */
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 1rem;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        @media (max-width: 900px) {
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Agenda Styles */
+        .agenda-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .agenda-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .agenda-item:hover {
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .agenda-time {
+            font-weight: 600;
+            color: var(--accent-1);
+            font-size: 0.95rem;
+            min-width: 50px;
+        }
+
+        .agenda-details {
+            flex: 1;
+        }
+
+        .agenda-title {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .agenda-duration {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .icon-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .icon-purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .icon-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .card-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.25rem; }
+            .card { padding: 1.5rem; }
+            .card-value { font-size: 3.5rem; }
+            header { margin-bottom: 2.5rem; }
+            body { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container" id="loginContainer">
+        <h2>Bem-vindo ao Dashboard</h2>
+        <p>Faça login com sua conta do Google para ver seus dados reais.</p>
+        <button class="btn-google" id="btnAuth">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.73 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Entrar com Google
+        </button>
+    </div>
+
+    <div class="dashboard-container" id="dashboardContainer">
+        <header>
+            <h1>Hello, Bia!</h1>
+            <p class="date">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                Segunda-feira, 25 de Maio de 2026
+            </p>
+        </header>
+
+        <div class="cards-grid">
+            <!-- Card: Emails -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon-wrapper icon-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </div>
+                    <h2 class="card-title">Emails não lidos</h2>
+                </div>
+                <div class="card-value" id="valEmails">-</div>
+            </div>
+
+            <!-- Card: Reuniões -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon-wrapper icon-purple">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h2 class="card-title">Reuniões hoje</h2>
+                </div>
+                <div class="card-value" id="valMeetings">-</div>
+            </div>
+
+            <!-- Card: Tarefas -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon-wrapper icon-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <h2 class="card-title">Tarefas pendentes</h2>
+                </div>
+                <div class="card-value">7</div>
+            </div>
+        </div>
+
+        <!-- Bottom Section: Chart & Agenda -->
+        <div class="bottom-grid">
+            <!-- Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon-wrapper icon-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                    </div>
+                    <h2 class="card-title">Volume de emails na semana</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="emailsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Agenda -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon-wrapper icon-purple">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                    </div>
+                    <h2 class="card-title">Agenda de hoje</h2>
+                </div>
+                <div class="agenda-list" id="agendaList">
+                    <div style="text-align: center; color: var(--text-secondary); padding: 1rem;">Carregando eventos...</div>
+                </div>
+            </div>
+
+            <!-- Painel de Saúde -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon-wrapper icon-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </div>
+                    <h2 class="card-title">Agenda Saúde</h2>
+                </div>
+                <div class="agenda-list" id="healthList">
+                    <div style="text-align: center; color: var(--text-secondary); padding: 1rem;">Nenhum evento de saúde.</div>
+                </div>
+                
+                <div class="water-reminder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                    Beba Água!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CLIENT_ID = '467185151762-1381ronav213c664c0epmkqlq3jvuvfi.apps.googleusercontent.com';
+        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly';
+        
+        let tokenClient;
+        let emailsChart;
+
+        function initChart(dataArray = [0, 0, 0, 0, 0, 0, 0]) {
+            const ctx = document.getElementById('emailsChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.1)');
+
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                labels.push(d.toLocaleDateString('pt-BR', { weekday: 'short' }));
+            }
+
+            if (emailsChart) emailsChart.destroy();
+
+            emailsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Emails Recebidos',
+                        data: dataArray,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        hoverBackgroundColor: 'rgba(59, 130, 246, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#f8fafc', bodyColor: '#f8fafc',
+                            borderColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, padding: 12,
+                            displayColors: false, cornerRadius: 8,
+                            titleFont: { family: "'Outfit', sans-serif", size: 14 },
+                            bodyFont: { family: "'Outfit', sans-serif", size: 14 }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }, ticks: { color: '#94a3b8', font: { family: "'Outfit', sans-serif" }, stepSize: 5 } },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#94a3b8', font: { family: "'Outfit', sans-serif" } } }
+                    }
+                }
+            });
+        }
+
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                discoveryDocs: [
+                    'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest',
+                    'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'
+                ],
+            });
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: async (resp) => {
+                    if (resp.error !== undefined) {
+                        throw (resp);
+                    }
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('dashboardContainer').style.display = 'block';
+                    initChart();
+                    await fetchDashboardData();
+                },
+            });
+        }
+
+        document.getElementById('btnAuth').onclick = () => {
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        };
+
+        window.gapiLoaded = gapiLoaded;
+        window.gisLoaded = gisLoaded;
+
+        async function fetchDashboardData() {
+            try {
+                // Fetch Emails
+                const resEmails = await gapi.client.gmail.users.messages.list({
+                    'userId': 'me',
+                    'q': 'is:unread in:inbox'
+                });
+                const unreadCount = resEmails.result.messages ? resEmails.result.messages.length : 0;
+                document.getElementById('valEmails').innerText = unreadCount;
+
+                // Fetch Meetings
+                const startOfDay = new Date();
+                startOfDay.setHours(0,0,0,0);
+                const endOfDay = new Date();
+                endOfDay.setHours(23,59,59,999);
+                
+                const resCalendar = await gapi.client.calendar.events.list({
+                    'calendarId': 'primary',
+                    'timeMin': startOfDay.toISOString(),
+                    'timeMax': endOfDay.toISOString(),
+                    'showDeleted': false,
+                    'singleEvents': true,
+                    'orderBy': 'startTime'
+                });
+                
+                const events = resCalendar.result.items || [];
+                document.getElementById('valMeetings').innerText = events.length;
+
+                const healthKeywords = ['academia', 'muay thai', 'yoga', 'dança', 'consulta', 'médico'];
+                const healthEvents = events.filter(event => {
+                    const title = (event.summary || '').toLowerCase();
+                    return healthKeywords.some(keyword => title.includes(keyword));
+                });
+
+                renderAgenda(events, 'agendaList');
+                renderAgenda(healthEvents, 'healthList');
+                fetchWeeklyVolume();
+                
+            } catch (err) {
+                console.error("Error fetching data: ", err);
+            }
+        }
+
+        function renderAgenda(events, containerId) {
+            const listContainer = document.getElementById(containerId);
+            listContainer.innerHTML = '';
+
+            if (events.length === 0) {
+                const emptyMsg = containerId === 'healthList' ? 'Nenhum evento de saúde hoje.' : 'Nenhuma reunião hoje.';
+                listContainer.innerHTML = `<div style="color: var(--text-secondary); padding: 1rem;">${emptyMsg}</div>`;
+                return;
+            }
+
+            events.forEach(event => {
+                let start = event.start.dateTime || event.start.date;
+                let end = event.end.dateTime || event.end.date;
+                
+                let startTime = "Dia todo";
+                let durationStr = "";
+
+                if (event.start.dateTime) {
+                    const startDate = new Date(start);
+                    const endDate = new Date(end);
+                    startTime = startDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    
+                    let diffMs = endDate - startDate;
+                    let diffMins = Math.round(diffMs / 60000);
+                    if (diffMins >= 60) {
+                        let h = Math.floor(diffMins / 60);
+                        let m = diffMins % 60;
+                        durationStr = m > 0 ? `${h}h ${m}m` : `${h}h`;
+                    } else {
+                        durationStr = `${diffMins} min`;
+                    }
+                }
+
+                const item = document.createElement('div');
+                item.className = 'agenda-item';
+                item.innerHTML = `
+                    <div class="agenda-time">${startTime}</div>
+                    <div class="agenda-details">
+                        <div class="agenda-title">${event.summary || 'Sem título'}</div>
+                        ${durationStr ? `
+                        <div class="agenda-duration">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            ${durationStr}
+                        </div>` : ''}
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        async function fetchWeeklyVolume() {
+            const promises = [];
+            for (let i = 6; i >= 0; i--) {
+                const start = new Date();
+                start.setDate(start.getDate() - i);
+                start.setHours(0,0,0,0);
+                const end = new Date(start);
+                end.setHours(23,59,59,999);
+                
+                const afterEpoch = Math.floor(start.getTime() / 1000);
+                const beforeEpoch = Math.floor(end.getTime() / 1000);
+
+                promises.push(gapi.client.gmail.users.messages.list({
+                    'userId': 'me',
+                    'q': `after:${afterEpoch} before:${beforeEpoch}`
+                }).then(res => res.result.messages ? res.result.messages.length : 0).catch(() => 0));
+            }
+
+            try {
+                const results = await Promise.all(promises);
+                initChart(results);
+            } catch (err) {
+                console.error("Error fetching weekly volume", err);
+            }
+        }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
