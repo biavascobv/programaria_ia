@@ -55,12 +55,13 @@ Versão inicial desenvolvida durante as atividades da sprint, com foco na integr
 
 ---
 
-## ❤️ Versão 02 — Saúde
+## ❤️ Versão 02 — Saúde - Agenda de saúde integrada com destaque para ela, separadamente.
 Expansão do projeto com informações voltadas para rotina e acompanhamento pessoal.
 
 ---
 
-## 🌎 Versão 03 — Fusos Horários & Temperatura
+## 🌎 Versão 03 — Fusos Horários & Temperatura onde a temperatura me ajuda a planejar meu dia e os fusos horarios me ajudam nas interações diárias com pessoas dos países selecionados. O fuso horário, muitas vezes, pode confundir.
+
 Versão avançada com:
 - múltiplos fusos horários,
 - previsão/temperatura,
