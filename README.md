@@ -92,7 +92,7 @@ Futuramente, o projeto poderá incluir:
 
 ---
 
-## 📌 Agenda Integrada
+## 📌 Agenda de sáude Integrada
 
 <p align="center">
   <img src="./dash_v2.png" width="900">
@@ -100,7 +100,7 @@ Futuramente, o projeto poderá incluir:
 
 ---
 
-## 📌 Dashboard Saúde
+## 📌 Temperatura e fusos horários integrados
 
 <p align="center">
   <img src="./dash_v3.png" width="900">
