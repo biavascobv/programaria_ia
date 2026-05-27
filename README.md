@@ -1,4 +1,4 @@
-# 🤖 Projeto | Sprint IA no Trabalho — PrograMaria
+# 🤖 Projeto | Sprint IA no Trabalho — PrograMaria 💜
 
 Projeto desenvolvido durante a **Sprint IA no Trabalho**, iniciativa da **PrograMaria**, organização de impacto social focada na formação, inclusão e fortalecimento de mulheres na tecnologia.
 
@@ -6,7 +6,7 @@ A PrograMaria promove cursos, bootcamps e eventos voltados para diversidade e eq
 
 ---
 
-# 🚀 Sobre a Sprint IA no Trabalho
+# 🤖 Sobre a Sprint IA no Trabalho
 
 A Sprint IA no Trabalho foi um minicurso prático com foco em aplicações reais de Inteligência Artificial no dia a dia profissional.
 
@@ -19,7 +19,7 @@ O programa abordou:
 
 ---
 
-# 💡 Sobre o Projeto
+#  Sobre o Projeto
 
 Este projeto foi desenvolvido utilizando conceitos de **Vibe Coding**, com suporte das ferramentas:
 
@@ -86,7 +86,7 @@ Futuramente, o projeto poderá incluir:
 ## 📌 Dashboard Principal
 
 <p align="center">
-  <img src="./images/dashboard-home.png" width="900">
+  <img src="./dash_v1.png" width="900">
 </p>
 
 ---
@@ -94,7 +94,7 @@ Futuramente, o projeto poderá incluir:
 ## 📌 Agenda Integrada
 
 <p align="center">
-  <img src="./images/dashboard-agenda.png" width="900">
+  <img src="./dash_v2.png" width="900">
 </p>
 
 ---
@@ -102,7 +102,7 @@ Futuramente, o projeto poderá incluir:
 ## 📌 Dashboard Saúde
 
 <p align="center">
-  <img src="./images/dashboard-saude.png" width="900">
+  <img src="./dash_v3.png" width="900">
 </p>
 
 ---
